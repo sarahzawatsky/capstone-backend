@@ -4,7 +4,7 @@ const passport = require('passport')
 const multer = require('multer')
 const upload = multer({ storage: multer.memoryStorage() })
 
-const StoryUpload = require('../models/file_upload')
+const StoryUpload = require('../models/story_upload')
 
 const storyUploadApi = require('../../lib/storyUploadApi')
 
@@ -19,8 +19,7 @@ const requireToken = passport.authenticate('bearer', { session: false })
 const router = express.Router()
 
 // INDEX
-// GET /storyUploads
-router.get('/storyUploads', (req, res, next) => {
+router.get('/stories', (req, res, next) => {
   StoryUpload.find()
     .then(storyUploads => {
       return storyUploads.map(storyUpload => storyUpload.toObject())
@@ -30,8 +29,7 @@ router.get('/storyUploads', (req, res, next) => {
 })
 
 // SHOW
-// GET /storyUploads/5a7db6c74d55bc51bdf39793
-router.get('/storyUploads/:id', (req, res, next) => {
+router.get('/stories/:id', (req, res, next) => {
   StoryUpload.findById(req.params.id)
     .then(handle404)
     .then(storyUpload => res.status(200).json({ storyUpload: storyUpload.toObject() }))
@@ -39,16 +37,15 @@ router.get('/storyUploads/:id', (req, res, next) => {
 })
 
 // CREATE
-// POST /storyUploads
-router.post('/storyUploads', requireToken, upload.single('upload'), (req, res, next) => {
+router.post('/stories', requireToken, upload.single('file'), (req, res, next) => {
   req.file.owner = req.user.id
   storyUploadApi(req.file)
     .then(s3Response => {
       const storyUploadParams = {
-        name: s3Response.Key,
-        fileType: req.file.mimetype,
         url: s3Response.Location,
-        user: req.user
+        owner: req.user.id,
+        chapter: req.body.chapter,
+        narrative: req.body.narrative
       }
       return StoryUpload.create(storyUploadParams)
     })
@@ -58,9 +55,8 @@ router.post('/storyUploads', requireToken, upload.single('upload'), (req, res, n
 })
 
 // UPDATE
-// PATCH /storyUploads/5a7db6c74d55bc51bdf39793
-router.patch('/storyUploads/:id', requireToken, removeBlanks, (req, res, next) => {
-  delete req.body.user
+router.patch('/stories/:id', requireToken, removeBlanks, (req, res, next) => {
+  delete req.body.storyUpload.owner
 
   StoryUpload.findById(req.params.id)
     .then(handle404)
@@ -74,8 +70,7 @@ router.patch('/storyUploads/:id', requireToken, removeBlanks, (req, res, next) =
 })
 
 // DESTROY
-// DELETE /storyUploads/5a7db6c74d55bc51bdf39793
-router.delete('/storyUploads/:id', requireToken, (req, res, next) => {
+router.delete('/stories/:id', requireToken, (req, res, next) => {
   StoryUpload.findById(req.params.id)
     .then(handle404)
     .then(storyUpload => {

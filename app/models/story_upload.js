@@ -1,12 +1,8 @@
 const mongoose = require('mongoose')
 require('./user')
 
-const fileUploadSchema = mongoose.Schema({
-  name: {
-    title: String,
-    required: true
-  },
-  fileType: {
+const storyUploadSchema = mongoose.Schema({
+  chapter: {
     type: String,
     required: true
   },
@@ -14,18 +10,19 @@ const fileUploadSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  user: {
+  owner: {
     type: mongoose.Schema.Types.ObjectID,
     ref: 'Owner',
     required: true
   },
-  description: {
-    type: String
+  narrative: {
+    type: String,
+    required: true
   }
 }, {
   timestamps: true
 })
 
-const FileUpload = mongoose.model('FileUpload', fileUploadSchema)
+const StoryUpload = mongoose.model('StoryUpload', storyUploadSchema)
 
-module.exports = FileUpload
+module.exports = StoryUpload
