@@ -22,6 +22,7 @@ const router = express.Router()
 router.get('/stories', (req, res, next) => {
   StoryUpload.find()
     .then(storyUploads => {
+      .populate(owner)
       return storyUploads.map(storyUpload => storyUpload.toObject())
     })
     .then(storyUploads => res.status(200).json({ storyUploads: storyUploads }))
