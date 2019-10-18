@@ -2,6 +2,10 @@ const mongoose = require('mongoose')
 require('./user')
 
 const storyUploadSchema = mongoose.Schema({
+  // event: {
+  //   type: String,
+  //   required: true
+  // },
   chapter: {
     type: String,
     required: true
