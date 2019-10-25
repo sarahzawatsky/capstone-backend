@@ -16,7 +16,7 @@ const storyUploadSchema = mongoose.Schema({
   },
   owner: {
     type: mongoose.Schema.Types.ObjectID,
-    ref: 'Owner',
+    ref: 'User',
     required: true
   },
   narrative: {

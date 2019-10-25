@@ -21,8 +21,8 @@ const router = express.Router()
 // INDEX
 router.get('/stories', (req, res, next) => {
   StoryUpload.find()
+    .populate('owner')
     .then(storyUploads => {
-      .populate(owner)
       return storyUploads.map(storyUpload => storyUpload.toObject())
     })
     .then(storyUploads => res.status(200).json({ storyUploads: storyUploads }))
@@ -32,6 +32,7 @@ router.get('/stories', (req, res, next) => {
 // SHOW
 router.get('/stories/:id', (req, res, next) => {
   StoryUpload.findById(req.params.id)
+    .populate('owner')
     .then(handle404)
     .then(storyUpload => res.status(200).json({ storyUpload: storyUpload.toObject() }))
     .catch(next)
