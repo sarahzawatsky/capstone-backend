@@ -40,11 +40,9 @@ router.get('/stories/:id', (req, res, next) => {
 
 // CREATE
 router.post('/stories', requireToken, upload.single('file'), (req, res, next) => {
-  console.log(req.file)
   req.file.owner = req.user.id
   s3Upload(req.file)
     .then(s3Response => {
-      console.log(s3Response)
       const storyUploadParams = {
         url: s3Response.Location,
         owner: req.user.id,
@@ -64,7 +62,6 @@ router.patch('/stories/:id', requireToken, upload.single('file'), removeBlanks, 
   delete req.body.user
 
   if (req.file) {
-    console.log('update route', req.file)
     s3Upload(req.file)
       .then(s3Response => {
         StoryUpload.findById(req.params.id)
@@ -72,7 +69,6 @@ router.patch('/stories/:id', requireToken, upload.single('file'), removeBlanks, 
           .then(book => {
             requireOwnership(req, book)
             if (book.url) {
-              console.log(book.url)
               s3Delete({
                 Bucket: process.env.BUCKET_NAME,
                 Key: book.url.split('/').pop()
@@ -87,7 +83,6 @@ router.patch('/stories/:id', requireToken, upload.single('file'), removeBlanks, 
           .catch(next)
       })
   } else {
-    console.log('no file')
     StoryUpload.findById(req.params.id)
       .then(handle404)
       .then(storyUpload => {
